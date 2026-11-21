@@ -42,9 +42,10 @@ pipeline {
                 echo 'QUALITY-PASSED'
             }
         }    
-            stage('DEPLOY') {
-                steps { 
-                    echo 'Deploy Success'
+            stage('STORE-ARTIFACT') {
+                steps {
+                    sh 'aws s3 cp backend/target/student-registration-backend-0.0.1-SNAPSHOT.jar \\ s3://my-jenkins-bucket-01/student-app.jar ' 
+                    echo 'artifactbackup-success'
                 }
             }
         }
