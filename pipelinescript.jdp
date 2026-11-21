@@ -58,7 +58,7 @@ pipeline {
         stage('UPLOAD TO S3') {
             steps {
                 sh '''
-                    aws s3 cp backend/target/student-registration-backend-0.0.1-SNAPSHOT.jar s3://YOUR-BUCKET-NAME/project-02/student-registration-backend.jar
+                    aws s3 cp backend/target/student-registration-backend-0.0.1-SNAPSHOT.jar s3://my-jenkins-bucket-01/project-02/student-registration-backend.jar
                 '''
 
                 echo 'S3 Upload Success'
