@@ -16,8 +16,16 @@ pipeline {
                 }
             }
             stage('TEST') {
-                steps { 
-                    echo 'Test Success'
+                steps {
+                    dir('backend') {
+                       sh '''mvn org.sonarsource.scanner.maven:sonar-maven-p
+lugin:sonar \\
+  -Dsonar.projectKey=project-02 \\
+  -Dsonar.projectName=\'project-02\' \\
+  -Dsonar.host.url=http://43.204.171.31:9000 \\
+  -Dsonar.token=sqp_e3d8bb97b7f1a87851ae1336ac2695bbc4817e18'''
+                    }
+             
                 }
             }
             stage('DEPLOY') {
