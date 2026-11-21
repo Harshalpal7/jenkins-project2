@@ -1,52 +1,74 @@
-pipeline { 
+
+pipeline {
     agent any
-        stages { 
-            stage('PULL') {
-                steps { 
-                    git branch: 'main', url: 'https://github.com/Harshalpal7/jenkins-project2'
-                    echo 'Pull Success'
-                }
+
+    stages {
+
+        stage('PULL') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Harshalpal7/jenkins-project2'
+
+                echo 'Pull Success'
             }
-            stage('BUILD') {
-                steps {
-                    dir('backend') { 
-                       sh 'mvn clean package -DskipTests'
-                    }
-                    echo 'Build Sucess'
+        }
+
+        stage('BUILD') {
+            steps {
+                dir('backend') {
+                    sh 'mvn clean package -DskipTests'
                 }
+
+                echo 'Build Success'
             }
-            stage('TEST') {
+        }
+
+        stage('TEST') {
             steps {
                 withSonarQubeEnv(
                     installationName: 'sonarqube',
                     credentialsId: 'sonar-cred'
                 ) {
                     dir('backend') {
-                        sh '''mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-  -Dsonar.projectKey=project-02 \
-  -Dsonar.projectName='project-02'
-'''
+                        sh '''
+                            mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.0.0.4389:sonar \
+                            -Dsonar.projectKey=project-02 \
+                            -Dsonar.projectName=project-02
+                        '''
                     }
                 }
 
-                echo 'TEST-SUCCESSfull'
+                echo 'TEST Successful'
             }
         }
+
         stage('QUALITY-GATE') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
-                waitForQualityGate abortPipeline: true, credentialsId: 'sonar-cred'
-                echo 'QUALITY-PASSED'
+                    waitForQualityGate(
+                        abortPipeline: true,
+                        credentialsId: 'sonar-cred'
+                    )
                 }
 
-                echo 'QUALITY-PASSED'
-            }
-        }    
-            stage('STORE-ARTIFACT') {
-                steps {
-                    sh 'aws s3 cp backend/target/student-registration-backend-0.0.1-SNAPSHOT.jar \\ s3://my-jenkins-bucket-01/student-app.jar ' 
-                    echo 'artifactbackup-success'
-                }
+                echo 'QUALITY GATE PASSED'
             }
         }
+
+        stage('UPLOAD TO S3') {
+            steps {
+                sh '''
+                    aws s3 cp backend/target/student-registration-backend-0.0.1-SNAPSHOT.jar s3://YOUR-BUCKET-NAME/project-02/student-registration-backend.jar
+                '''
+
+                echo 'S3 Upload Success'
+            }
+        }
+
+        stage('DEPLOY') {
+            steps {
+                echo 'Deploy Success'
+            }
+        }
+    }
 }
